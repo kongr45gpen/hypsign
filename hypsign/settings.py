@@ -169,6 +169,13 @@ LOGGING = {
     },
 }
 
+# TODO: Use redis
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
+
 X_FRAME_OPTIONS = "SAMEORIGIN"
 
 # Import local settings from settings_local.py, if it exists

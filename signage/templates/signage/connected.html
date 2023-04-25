@@ -1,0 +1,97 @@
+{% load static %}
+
+<html>
+
+<head>
+    <title>Connected displays</title>
+    <meta charset="UTF-8" />
+    <!-- Basic CSS that, if loaded, will give a better look to the page -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'favicon.svg' %}" />
+    <link rel="stylesheet" href="{% static 'libs/notyf.min.css' %}">
+    <style>
+        td:nth-child(1) {
+            font-family: monospace;
+        }
+        td:nth-child(4) {
+            font-size: 8pt;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Display Diagnostics</h1>
+    <h2>Connected Displays</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Display</th>
+                <th>Browser code</th>
+                <th>Resolution</th>
+                <th>User Agent</th>
+                <th>IP Address</th>
+            </tr>
+        </thead>
+        <tbody id="js--table-body"></tbody>
+    </table>
+</div>
+
+<script src="{% static 'libs/notyf.min.js' %}"></script>
+<script src="{% static 'functions.js' %}"></script>
+<script>
+    const notyf = new Notyf();
+    const tableBody = document.getElementById('js--table-body');
+
+    const webSocket = createSocket();
+    webSocket.onopen = function(e) {
+        webSocket.send(JSON.stringify({
+            'action': 'get_subscribed_displays',
+            'request_id': 0,
+        }));
+    };
+
+    webSocket.onmessage = function(e) {
+        const data = JSON.parse(e.data);
+        console.log("Received WS data", data);
+
+        if (data.errors.length !== 0) {
+            console.error("WS data contained errors", data.errors)
+            for (const e of data.errors) {
+                notyf.error(e);
+            }
+            return true;
+        }
+
+        switch (data.action) {
+            case "get_subscribed_displays":
+                updateTable(data.data);
+                break;
+        }
+    };
+
+    function updateTable(data) {
+        tableBody.innerHTML = '';
+        data.forEach(display => {
+            const row = document.createElement('tr');
+            const cellContent = [
+                display.code,
+                display.browser_code,
+                `${display.display.width}×${display.display.height} (${display.display.dpr}dpr)`,
+                display.display.user_agent,
+                display.ip_address,
+            ];
+            cellContent.forEach(content => {
+                const cell = document.createElement('td');
+                cell.innerText = content;
+                row.appendChild(cell);
+            });
+            tableBody.appendChild(row);
+        });
+    }
+</script>
+
+</body>
+
+</html>

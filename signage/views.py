@@ -14,3 +14,6 @@ def display_view(request, display_code):
     display = get_object_or_404(Display, code=display_code)
     
     return render(request, 'signage/display.html', {'display': display})
+
+def connected_view(request):
+    return render(request, 'signage/connected.html')

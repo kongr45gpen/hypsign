@@ -5,20 +5,19 @@ const notyf = new Notyf();
 window.onload = () => {
 };
 
-const chatSocket = new WebSocket(
-    'ws://' + window.location.host + '/ws/signage/'
-);
+const webSocket = createSocket();
 
-chatSocket.onopen = function(e) {
+webSocket.onopen = function(e) {
     notyf.success('Connected');
 
-    chatSocket.send(JSON.stringify({
+    webSocket.send(JSON.stringify({
         'action': 'hello',
         'request_id': request_id++,
-        'code': window.Config.code
+        'code': window.Config.code,
+        'display': getDisplayInformation(),
     }));
 
-    chatSocket.send(JSON.stringify({
+    webSocket.send(JSON.stringify({
         'action': 'get_current_page',
         'request_id': request_id++,
         'code': window.Config.code
@@ -29,7 +28,7 @@ function onGetCurrentPage(page) {
     displayPage(page);
 }
 
-chatSocket.onmessage = function(e) {
+webSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
     console.log("Received WS data", data);
 
@@ -48,12 +47,3 @@ chatSocket.onmessage = function(e) {
     }
 };
 
-chatSocket.onerror = function(e) {
-    console.error('Chat socket error', e);
-    notyf.error(e);
-};
-
-chatSocket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly', e);
-    notyf.error("Web socket disconnected");
-};
