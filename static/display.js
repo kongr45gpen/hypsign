@@ -17,13 +17,43 @@ chatSocket.onopen = function(e) {
         'request_id': request_id++,
         'code': window.Config.code
     }));
+
+    chatSocket.send(JSON.stringify({
+        'action': 'get_current_page',
+        'request_id': request_id++,
+        'code': window.Config.code
+    }));
 };
+
+function onGetCurrentPage(page) {
+
+}
 
 chatSocket.onmessage = function(e) {
     const data = JSON.parse(e.data);
-    console.log(data);
+    console.log("Received WS data", data);
+
+    if (data.errors.length !== 0) {
+        console.error("WS data contained errors", data.errors)
+        for (const e of data.errors) {
+            notyf.error(e);
+        }
+        return true;
+    }
+
+    switch (data.action) {
+        case "get_current_page":
+            onGetCurrentPage(data.data);
+            break;
+    }
+};
+
+chatSocket.onerror = function(e) {
+    console.error('Chat socket error', e);
+    notyf.error(e);
 };
 
 chatSocket.onclose = function(e) {
-    console.error('Chat socket closed unexpectedly');
+    console.error('Chat socket closed unexpectedly', e);
+    notyf.error("Web socket disconnected");
 };

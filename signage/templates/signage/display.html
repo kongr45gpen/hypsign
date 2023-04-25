@@ -6,6 +6,7 @@
     <title></title>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'libs/notyf.min.css' %}">
     <link rel="shortcut icon" href="{% static 'favicon.svg' %}"/>
     <style>
         .container {
@@ -16,6 +17,9 @@
         body {
             margin: 0;
             padding: 0;
+        }
+        .notyf {
+            font-family: "Open Sans", "Roboto", "Lato", "Noto Sans", "Helvetica", "Lucida Sans", sans-serif;
         }
     </style>
 </head>
@@ -37,6 +41,7 @@
             code: "{{ display.code }}",
         };
     </script>
+    <script src="{% static 'libs/notyf.min.js' %}"></script>
     <script src="{% static 'display.js' %}"></script>
 </body>
 
