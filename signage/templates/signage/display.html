@@ -17,15 +17,23 @@
         body {
             margin: 0;
             padding: 0;
+            overflow: hidden;
         }
         .notyf {
             font-family: "Open Sans", "Roboto", "Lato", "Noto Sans", "Helvetica", "Lucida Sans", sans-serif;
+        }
+        iframe {
+            border: none;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
         }
     </style>
 </head>
 
 <body>
-    <main class="container">
+    <main id="container" class="container">
         <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
             <div style="font-size: 5vw; font-family: 'Source Code Pro', 'Ubuntu Mono', 'Consolas', monospace" title="Display Code">
                 {{ display.code }}
@@ -42,6 +50,7 @@
         };
     </script>
     <script src="{% static 'libs/notyf.min.js' %}"></script>
+    <script src="{% static 'functions.js' %}"></script>
     <script src="{% static 'display.js' %}"></script>
 </body>
 

@@ -169,6 +169,8 @@ LOGGING = {
     },
 }
 
+X_FRAME_OPTIONS = "SAMEORIGIN"
+
 # Import local settings from settings_local.py, if it exists
 try:
     from .local_settings import *

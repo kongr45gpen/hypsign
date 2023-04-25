@@ -26,7 +26,7 @@ chatSocket.onopen = function(e) {
 };
 
 function onGetCurrentPage(page) {
-
+    displayPage(page);
 }
 
 chatSocket.onmessage = function(e) {
