@@ -5,7 +5,6 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 class SignageConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        logging.debug("Websocket client connected")
         await self.accept()
 
     async def disconnect(self, close_code):

@@ -26,12 +26,17 @@
             <div style="font-size: 5vw; font-family: 'Source Code Pro', 'Ubuntu Mono', 'Consolas', monospace" title="Display Code">
                 {{ display.code }}
             </div>
-            <div class="hypsign--loading" style="font-family: sans-serif; opacity: 0">
-                Loading&hellip;
+            <div class="hypsign--loading" style="font-family: sans-serif">
+                <span id="js--status">Connecting &hellip;</span>
             </div>
         </div>
     </main>
 
+    <script type="text/javascript">
+        window.Config = {
+            code: "{{ display.code }}",
+        };
+    </script>
     <script src="{% static 'display.js' %}"></script>
 </body>
 
