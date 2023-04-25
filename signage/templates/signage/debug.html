@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <title>carbon-web-components example</title>
+    <meta charset="UTF-8" />
+    <!-- Basic CSS that, if loaded, will give a better look to the page -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <h1>Display Diagnostics</h1>
+    <h1><code>{{ display.code }}</code></h1>
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Display Information</th>
+            </tr>
+        </thead>        <tbody>
+
+            <tr>
+                <td>Display ID</td>
+                <td><code>{{display.id}}</code></td>
+            </tr>
+            <tr>
+                <td>Display Code</td>
+                <td><code>{{display.code}}</code></td>
+            </tr>
+            <tr>
+                <td>Display Description</td>
+                <td>{{display.description}}</td>
+            </tr>
+            <tr>
+                <td>Display Signature</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Schedule Information</th>
+            </tr>
+        </thead>        <tbody>
+
+            <tr>
+                <td>Schedule Entry ID</td>
+                <td><code>{{schedule.id}}</code></td>
+            </tr>
+            <tr>
+                <td>Schedule Entry Page</td>
+                <td><code>{{schedule.page}}</code></td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
