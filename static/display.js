@@ -1,8 +1,8 @@
 let $status = undefined;
+let request_id = 0;
+const notyf = new Notyf();
 
 window.onload = () => {
-    console.log("Well well well");
-    $status = document.getElementById('js--status');
 };
 
 const chatSocket = new WebSocket(
@@ -10,10 +10,11 @@ const chatSocket = new WebSocket(
 );
 
 chatSocket.onopen = function(e) {
-    $status.innerHTML = "Connected";
+    notyf.success('Connected');
 
     chatSocket.send(JSON.stringify({
-        'type': 'introduction',
+        'action': 'hello',
+        'request_id': request_id++,
         'code': window.Config.code
     }));
 };
