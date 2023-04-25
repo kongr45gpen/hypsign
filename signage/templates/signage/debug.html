@@ -1,11 +1,14 @@
+{% load static %}
+
 <html>
 
 <head>
-    <title>carbon-web-components example</title>
+    <title>Display {{ display.code }}</title>
     <meta charset="UTF-8" />
     <!-- Basic CSS that, if loaded, will give a better look to the page -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'diagnostics.svg' %}" />
 </head>
 
 <body>
@@ -16,8 +19,8 @@
             <tr>
                 <th colspan="2">Display Information</th>
             </tr>
-        </thead>        <tbody>
-
+        </thead>
+        <tbody>
             <tr>
                 <td>Display ID</td>
                 <td><code>{{display.id}}</code></td>
@@ -42,8 +45,8 @@
             <tr>
                 <th colspan="2">Schedule Information</th>
             </tr>
-        </thead>        <tbody>
-
+        </thead>
+        <tbody>
             <tr>
                 <td>Schedule Entry ID</td>
                 <td><code>{{schedule.id}}</code></td>
