@@ -47,7 +47,12 @@
     const webSocket = createSocket();
     webSocket.onopen = function(e) {
         webSocket.send(JSON.stringify({
-            'action': 'get_subscribed_displays',
+            'action': 'subscribe_to_display_connections',
+            'request_id': 0,
+        }));
+
+        webSocket.send(JSON.stringify({
+            'action': 'get_connected_displays',
             'request_id': 0,
         }));
     };
@@ -65,7 +70,7 @@
         }
 
         switch (data.action) {
-            case "get_subscribed_displays":
+            case "get_connected_displays":
                 updateTable(data.data);
                 break;
         }
