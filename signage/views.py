@@ -17,3 +17,8 @@ def display_view(request, display_code):
 
 def connected_view(request):
     return render(request, 'signage/connected.html')
+
+def grid_view(request):
+    displays = Display.objects.order_by('code')[:16]
+
+    return render(request, 'signage/grid.html', {'displays': displays})
