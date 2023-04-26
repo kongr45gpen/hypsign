@@ -44,8 +44,26 @@
     const notyf = new Notyf();
     const tableBody = document.getElementById('js--table-body');
 
-    const webSocket = createSocket();
-    webSocket.onopen = function(e) {
+    const webSocket = createSocket(function(webSocket) {
+        webSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log("Received WS data", data);
+
+            if (data.errors.length !== 0) {
+                console.error("WS data contained errors", data.errors)
+                for (const e of data.errors) {
+                    notyf.error(e);
+                }
+                return true;
+            }
+
+            switch (data.action) {
+                case "get_connected_displays":
+                    updateTable(data.data);
+                    break;
+            }
+        };
+
         webSocket.send(JSON.stringify({
             'action': 'subscribe_to_display_connections',
             'request_id': 0,
@@ -55,26 +73,7 @@
             'action': 'get_connected_displays',
             'request_id': 0,
         }));
-    };
-
-    webSocket.onmessage = function(e) {
-        const data = JSON.parse(e.data);
-        console.log("Received WS data", data);
-
-        if (data.errors.length !== 0) {
-            console.error("WS data contained errors", data.errors)
-            for (const e of data.errors) {
-                notyf.error(e);
-            }
-            return true;
-        }
-
-        switch (data.action) {
-            case "get_connected_displays":
-                updateTable(data.data);
-                break;
-        }
-    };
+    });
 
     function updateTable(data) {
         tableBody.innerHTML = '';

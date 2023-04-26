@@ -1,4 +1,4 @@
-function createSocket() {
+function createSocket(onopen) {
     const webSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/signage/'
     );
@@ -14,8 +14,19 @@ function createSocket() {
         console.error('Chat socket closed unexpectedly', e);
         if (notyf !== undefined) {
             notyf.error("Web socket disconnected");
+
+            setTimeout(function() {
+                createSocket(onopen);
+              }, 1000);
         }
     };
+
+    webSocket.onopen = function(e) {
+        if (onopen !== undefined) {
+            onopen(webSocket, e);
+        }
+        notyf.success('Connected');
+    }
 
     return webSocket;
 }

@@ -5,10 +5,25 @@ const notyf = new Notyf();
 window.onload = () => {
 };
 
-const webSocket = createSocket();
-
-webSocket.onopen = function(e) {
-    notyf.success('Connected');
+const webSocket = createSocket(function (webSocket) {
+    webSocket.onmessage = function (e) {
+        const data = JSON.parse(e.data);
+        console.log("Received WS data", data);
+    
+        if (data.errors.length !== 0) {
+            console.error("WS data contained errors", data.errors)
+            for (const e of data.errors) {
+                notyf.error(e);
+            }
+            return true;
+        }
+    
+        switch (data.action) {
+            case "get_current_page":
+                onGetCurrentPage(data.data);
+                break;
+        }
+    };
 
     webSocket.send(JSON.stringify({
         'action': 'hello',
@@ -21,29 +36,10 @@ webSocket.onopen = function(e) {
         'action': 'get_current_page',
         'request_id': request_id++,
         'code': window.Config.code
-    }));
-};
+    }))
+});
 
 function onGetCurrentPage(page) {
     displayPage(page);
 }
-
-webSocket.onmessage = function(e) {
-    const data = JSON.parse(e.data);
-    console.log("Received WS data", data);
-
-    if (data.errors.length !== 0) {
-        console.error("WS data contained errors", data.errors)
-        for (const e of data.errors) {
-            notyf.error(e);
-        }
-        return true;
-    }
-
-    switch (data.action) {
-        case "get_current_page":
-            onGetCurrentPage(data.data);
-            break;
-    }
-};
 

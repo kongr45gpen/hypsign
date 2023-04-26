@@ -1,4 +1,4 @@
-import json
+import datetime
 import logging
 import asyncio
 
@@ -35,7 +35,11 @@ class SignageConsumer(AsyncAPIConsumer):
 
     async def _add_to_connected_displays(self, data):
         async with lock:
-            connected_displays[self.channel_name] = {**data, 'ip_address': self.scope['client'][0]}
+            connected_displays[self.channel_name] = {
+                **data,
+                'ip_address': self.scope['client'][0],
+                'connected_at': datetime.datetime.now().isoformat()
+            }
         await SyncToAsync(display_connect_signal.send)(sender=self.__class__, data=data)
 
     @action()
@@ -64,7 +68,7 @@ class SignageConsumer(AsyncAPIConsumer):
         
         schedule_item = display.get_current_schedule_item()
         if not schedule_item:
-            return {}, 404
+            return {}, 404 
         
         page = schedule_item.page
                 
