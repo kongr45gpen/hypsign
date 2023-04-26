@@ -12,7 +12,8 @@
         .container {
             height: 100vh;
             width: 100vw;
-            background-color: #ccc;
+            background-color: #000;
+            color: #fff;
         }
         body {
             margin: 0;
@@ -29,17 +30,33 @@
             width: 100vw;
             height: 100vh;
         }
+        .placeholder-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            flex-direction: column;
+        }
+        .placeholder {
+            font-size: 10vw;
+            font-family: 'Source Code Pro', 'Ubuntu Mono', 'Consolas', monospace;
+        }
+        .placeholder::after {
+            content: attr(title);
+            font-size: 4vw;
+            font-family: 'Open Sans', 'Roboto', 'Lato', 'Noto Sans', 'Helvetica', 'Lucida Sans', sans-serif;
+            display: block;
+            margin-top: 1vw;
+            text-align: center;
+        }
     </style>
 </head>
 
 <body>
     <main id="container" class="container">
-        <div style="display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;">
-            <div style="font-size: 5vw; font-family: 'Source Code Pro', 'Ubuntu Mono', 'Consolas', monospace" title="Display Code">
+        <div class="placeholder-container">
+            <div class="placeholder" title="Display Code">
                 {{ display.code }}
-            </div>
-            <div class="hypsign--loading" style="font-family: sans-serif">
-                <span id="js--status">Connecting &hellip;</span>
             </div>
         </div>
     </main>

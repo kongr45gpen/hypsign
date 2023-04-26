@@ -23,7 +23,7 @@ class Page(models.Model):
         return self.description
 
 class ScheduleEntry(models.Model):
-    displays = models.ManyToManyField(Display)
+    displays = models.ManyToManyField(Display, blank=True)
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()

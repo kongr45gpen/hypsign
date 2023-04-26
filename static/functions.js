@@ -1,5 +1,5 @@
 function createSocket(onopen) {
-    const webSocket = new WebSocket(
+    let webSocket = new WebSocket(
         'ws://' + window.location.host + '/ws/signage/'
     );
 
@@ -16,7 +16,7 @@ function createSocket(onopen) {
             notyf.error("Web socket disconnected");
 
             setTimeout(function() {
-                createSocket(onopen);
+                webSocket = createSocket(onopen)();
               }, 1000);
         }
     };
@@ -28,14 +28,28 @@ function createSocket(onopen) {
         notyf.success('Connected');
     }
 
-    return webSocket;
+    // Returns a function so that we always have the working version of the websocket, even after disconnects
+    return function() { return webSocket };
 }
 
 function displayPage(page) {
-    var iframe = document.createElement("iframe");
-    iframe.setAttribute("src", page['path']);
-    iframe.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
-    document.getElementById("container").replaceChildren(iframe);
+    if (page === undefined || page === null) {
+        // Add placeholder-container and placeholder with display code
+        var placeholder = document.createElement("div");
+        placeholder.classList.add("placeholder");
+        placeholder.setAttribute("title", "No page set up for display");
+        placeholder.innerText = window.Config.code;
+        var placeholderContainer = document.createElement("div");
+        placeholderContainer.classList.add("placeholder-container");
+        placeholderContainer.appendChild(placeholder);
+        document.getElementById("container").replaceChildren(placeholderContainer);
+    } else {
+        console.error('page exists', page);
+        var iframe = document.createElement("iframe");
+        iframe.setAttribute("src", page['path']);
+        iframe.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
+        document.getElementById("container").replaceChildren(iframe);
+    }
 }
 
 function getDisplayInformation() {

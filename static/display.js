@@ -25,6 +25,13 @@ const webSocket = createSocket(function (webSocket) {
             case "hello":
                 onHello(data.data)
                 break;
+            case "display_updated":
+            case "reload":
+                onDisplayUpdated(data.data);
+                break;
+            case "refresh":
+                window.location.reload();
+                break;
         }
     };
 
@@ -45,6 +52,14 @@ const webSocket = createSocket(function (webSocket) {
 
 function onGetCurrentPage(page) {
     displayPage(page);
+}
+
+function onDisplayUpdated(page) {
+    webSocket().send(JSON.stringify({
+        'action': 'get_current_page',
+        'request_id': request_id++,
+        'code': window.Config.code
+    }))
 }
 
 function onHello(data) {

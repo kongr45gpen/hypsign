@@ -81,7 +81,7 @@ class SignageConsumer(AsyncAPIConsumer):
         
         schedule_item = display.get_current_schedule_item()
         if not schedule_item:
-            return {}, 404 
+            return None, 404 
         
         page = schedule_item.page
                 
@@ -96,7 +96,7 @@ class SignageConsumer(AsyncAPIConsumer):
     @observer(signal=display_update_signal)
     async def display_updated_handler(self, data, observer=None, action=None, subscribing_request_ids=[], **kwargs):
         for request_id in subscribing_request_ids:
-            await self.reply(action='display_entered', data=data, status=status.HTTP_200_OK, request_id=request_id)
+            await self.reply(action='display_updated', data=data, status=status.HTTP_200_OK, request_id=request_id)
 
     # Enumerate which groups the event should be sent to
     @display_updated_handler.groups_for_signal
