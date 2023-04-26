@@ -1,0 +1,47 @@
+{% load static %}
+
+<html>
+
+<head>
+    <title>Connected displays</title>
+    <meta charset="UTF-8" />
+    <!-- Basic CSS that, if loaded, will give a better look to the page -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="{% static 'favicon.svg' %}" />
+    <link rel="stylesheet" href="{% static 'libs/notyf.min.css' %}">
+</head>
+
+<body>
+    <h1>hypsign Digital Signage</h1>
+    <h2>Generic Functions</h2>
+
+    <form action="{% url 'grid_view' %}" method="GET">
+        <button type="submit">Grid View</button>
+    </form>
+
+    <form action="{% url 'connected_view' %}" method="GET">
+        <button type="submit">Device List</button>
+    </form>
+
+    <form action="{% url 'admin:index' %}" method="GET">
+        <button type="submit">Admin</button>
+    </form>
+
+    <h2>Displays</h2>
+    <ul>
+        {% for display in displays %}
+        <li>
+        <a href="{% url 'display_view' display.code %}">[🔎View]</a>
+        <a href="{% url 'diagnosis_view' display.code %}">[Debug]</a>
+        <code>{{ display.code }}</code> ({{ display.description }})
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+
+
+</body>
+
+</html>

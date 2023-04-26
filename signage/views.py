@@ -22,3 +22,8 @@ def grid_view(request):
     displays = Display.objects.order_by('code')[:16]
 
     return render(request, 'signage/grid.html', {'displays': displays})
+
+def landing_view(request):
+    displays = Display.objects.all()
+
+    return render(request, 'signage/landing.html', {'displays': displays})
