@@ -31,7 +31,8 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'signage.apps.SignageConfig',
-    "daphne",
+    'daphne',
+    'django_q',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -172,8 +173,28 @@ LOGGING = {
 # TODO: Use redis
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
     }
+}
+
+Q_CLUSTER = {
+    'name': 'hypsign',
+    'workers': 2,
+    'recycle': 500,
+    'timeout': 60,
+    'compress': False,
+    'max_attempts': 2,
+    'save_limit': 250,
+    'queue_limit': 500,
+    'cpu_affinity': 1,
+    'label': 'Background Tasks (Django-Q)',
+    'redis': {
+        'host': '127.0.0.1',
+        'port': 6379,
+        'db': 0, }
 }
 
 X_FRAME_OPTIONS = "SAMEORIGIN"

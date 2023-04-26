@@ -16,6 +16,7 @@ from signage.models import Display
 from rest_framework.exceptions import NotFound
 from signage.serializers import PageSerializer
 from .signals import display_update_signal, display_connect_signal
+from channels.layers import get_channel_layer
 
 from channels import layers
 from rest_framework import status
@@ -51,6 +52,10 @@ class SignageConsumer(AsyncAPIConsumer):
         return ''.join(random.choices(string.ascii_lowercase + string.digits, k=7))
 
     @action()
+    async def ping(self, **kwargs):
+        return None, status.HTTP_204_NO_CONTENT
+
+    @action()
     async def hello(self, code, device_id = None, **kwargs):
         try:
             display = await database_sync_to_async(Display.objects.get)(code=code)
@@ -66,6 +71,7 @@ class SignageConsumer(AsyncAPIConsumer):
         self.device_id = device_id
 
         await self.display_updated_handler.subscribe(code=code, **kwargs)
+        await self.channel_layer.group_add(f'keepalive', self.channel_name)
         asyncio.create_task(self._add_to_connected_displays({'code': code, 'display': kwargs['display']}))
 
         logger.debug("Received hello from display: [{}] {}".format(self.device_id, display.code))
@@ -118,3 +124,7 @@ class SignageConsumer(AsyncAPIConsumer):
     async def display_connected_handler(self, data, observer=None, action=None, subscribing_request_ids=[], **kwargs):
         for request_id in subscribing_request_ids:
             await self.handle_action(action='get_connected_displays', request_id=request_id)
+
+    async def keepalive(self, event):
+        await self.reply(action='keepalive', data=None, status=status.HTTP_204_NO_CONTENT)
+
