@@ -89,3 +89,32 @@ function getDisplayInformation() {
         "user_agent": window.navigator.userAgent,
     }
 }
+
+let lastKeepalive = new Date();
+
+function updateKeepalive() {
+    lastKeepalive = new Date();
+}
+
+function checkKeepalive() {
+    //console.debug("Last keepalive received " + (new Date() - lastKeepalive)/1000 + " s ago");
+    if (new Date() - lastKeepalive > 1000 * 60 * 2) {
+        console.error("No keepalive received in 2 minutes, checking if internet connection exists");
+
+        // Check if we have a connection
+        fetch('/').then((response) => {
+            if (response.ok) {
+              console.error("Connection to server is OK, refreshing...")
+              window.location.reload();
+            } else {
+                console.error("Unknown error in connection")
+            }
+          }).catch((error) => {
+            console.error("Connection Error. Will keep displaying current image.", error);
+          });
+    }
+}
+
+function startKeepaliveChecks() {
+    setInterval(checkKeepalive, 10000);
+}

@@ -3,6 +3,7 @@ let request_id = 0;
 const notyf = new Notyf();
 
 window.onload = () => {
+    startKeepaliveChecks();
 };
 
 const webSocket = createSocket(function (webSocket) {
@@ -32,6 +33,8 @@ const webSocket = createSocket(function (webSocket) {
             case "refresh":
                 window.location.reload();
                 break;
+            case "keepalive":
+                updateKeepalive();
         }
     };
 
