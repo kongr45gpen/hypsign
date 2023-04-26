@@ -22,6 +22,9 @@ const webSocket = createSocket(function (webSocket) {
             case "get_current_page":
                 onGetCurrentPage(data.data);
                 break;
+            case "hello":
+                onHello(data.data)
+                break;
         }
     };
 
@@ -30,6 +33,7 @@ const webSocket = createSocket(function (webSocket) {
         'request_id': request_id++,
         'code': window.Config.code,
         'display': getDisplayInformation(),
+        'device_id': localStorage.getItem("device_id")
     }));
 
     webSocket.send(JSON.stringify({
@@ -43,3 +47,6 @@ function onGetCurrentPage(page) {
     displayPage(page);
 }
 
+function onHello(data) {
+    localStorage.setItem("device_id", data.device_id);
+}

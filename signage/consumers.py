@@ -1,6 +1,8 @@
 import datetime
 import logging
 import asyncio
+import random
+import string
 
 from channels.db import database_sync_to_async
 from django.http import Http404
@@ -26,6 +28,8 @@ connected_displays = {}
 class SignageConsumer(AsyncAPIConsumer):
     # Code of the connected display, if any
     code = None
+    # Code of the connected browser/device, if any
+    device_id = None
 
     async def disconnect(self, close_code):
         async with lock:
@@ -38,25 +42,34 @@ class SignageConsumer(AsyncAPIConsumer):
             connected_displays[self.channel_name] = {
                 **data,
                 'ip_address': self.scope['client'][0],
-                'connected_at': datetime.datetime.now().isoformat()
+                'connected_at': datetime.datetime.now().isoformat(),
+                'device_id': self.device_id
             }
         await SyncToAsync(display_connect_signal.send)(sender=self.__class__, data=data)
 
+    def _create_random_device_id(self):
+        return ''.join(random.choices(string.ascii_lowercase + string.digits, k=7))
+
     @action()
-    async def hello(self, code, **kwargs):
+    async def hello(self, code, device_id = None, **kwargs):
         try:
             display = await database_sync_to_async(Display.objects.get)(code=code)
         except Exception as e:
-            logger.warning("Display not found: {}".format(code))
+            logger.warning("Display not found: {}".format(e))
             raise NotFound("Display not found")
 
         self.code = code
 
+        # Untrustworthy and can be easily spoofed, but is only used for diagnostics and doesn't affect anything
+        if device_id is None:
+            device_id = self._create_random_device_id()
+        self.device_id = device_id
+
         await self.display_updated_handler.subscribe(code=code, **kwargs)
         asyncio.create_task(self._add_to_connected_displays({'code': code, 'display': kwargs['display']}))
 
-        logger.debug("Received hello from display: {}".format(display.code))
-        return {}, status.HTTP_204_NO_CONTENT
+        logger.debug("Received hello from display: [{}] {}".format(self.device_id, display.code))
+        return {'device_id': self.device_id}, status.HTTP_200_OK
     
     @action()
     def get_current_page(self, code, **kwargs):

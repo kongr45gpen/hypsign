@@ -14,6 +14,9 @@
         td:nth-child(1) {
             font-family: monospace;
         }
+        td:nth-child(2) {
+            font-family: monospace;
+        }
         td:nth-child(4) {
             font-size: 8pt;
         }
@@ -28,7 +31,7 @@
         <thead>
             <tr>
                 <th>Display</th>
-                <th>Browser code</th>
+                <th>Device ID</th>
                 <th>Resolution</th>
                 <th>User Agent</th>
                 <th>IP Address</th>
@@ -81,7 +84,7 @@
             const row = document.createElement('tr');
             const cellContent = [
                 display.code,
-                display.browser_code,
+                display.device_id,
                 `${display.display.width}×${display.display.height} (${display.display.dpr}dpr)`,
                 display.display.user_agent,
                 display.ip_address,
