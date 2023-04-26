@@ -49,10 +49,39 @@
             margin-top: 1vw;
             text-align: center;
         }
+        .iframe-loading {
+            position: absolute;
+            left: -500vw;
+            opacity: 0;
+        }
+        .loading-indicator {
+            position: absolute;
+            right: 100px;
+            top: 50px;
+
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { -webkit-transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none !important;
+        }
     </style>
 </head>
 
 <body>
+    <div class="loading-indicator hidden" id="js--loading-indicator">
+    </div>
+
     <main id="container" class="container">
         <div class="placeholder-container">
             <div class="placeholder" title="Display Code">
