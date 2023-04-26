@@ -33,22 +33,49 @@ function createSocket(onopen) {
 }
 
 function displayPage(page) {
+    const $loadingIndicator = document.getElementById("js--loading-indicator");
+
     if (page === undefined || page === null) {
         // Add placeholder-container and placeholder with display code
         var placeholder = document.createElement("div");
         placeholder.classList.add("placeholder");
         placeholder.setAttribute("title", "No page set up for display");
         placeholder.innerText = window.Config.code;
+
         var placeholderContainer = document.createElement("div");
         placeholderContainer.classList.add("placeholder-container");
         placeholderContainer.appendChild(placeholder);
+
         document.getElementById("container").replaceChildren(placeholderContainer);
+
+        $loadingIndicator.classList.add("hidden");
     } else {
-        console.error('page exists', page);
+        $loadingIndicator.classList.remove("hidden");
+        var old_children = document.getElementById("container").children;
+
+        var start = new Date();
+
         var iframe = document.createElement("iframe");
+        iframe._display = function() {
+            console.log("iframe loading completed in " + (new Date() - start) + "ms");
+            iframe._display = function() {};
+            for (var child of old_children) {
+                document.getElementById("container").removeChild(child);
+            }
+            iframe.classList.remove("iframe-loading");
+            $loadingIndicator.classList.add("hidden");
+        }
+
+        iframe.onload = iframe._display;
         iframe.setAttribute("src", page['path']);
         iframe.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
-        document.getElementById("container").replaceChildren(iframe);
+        iframe.classList.add("iframe-loading");
+        document.getElementById("container").appendChild(iframe);
+
+        // If not loaded after a few seconds, force display
+        setTimeout(function() {
+            iframe._display();
+        }, 5000);
     }
 }
 
