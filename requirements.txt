@@ -2,6 +2,7 @@ asgiref==3.6.0
 channels==4.0.0
 channels-redis==4.1.0
 Django==4.1.7
+django-admin-sortable2==2.1.8
 djangochannelsrestframework==1.1.0
 djangorestframework==3.14.0
 django-q==1.3.9

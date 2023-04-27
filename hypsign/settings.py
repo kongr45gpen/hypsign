@@ -32,13 +32,14 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'signage.apps.SignageConfig',
     'daphne',
-    'django_q',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'adminsortable2',
+    'django_q',
 ]
 
 MIDDLEWARE = [
