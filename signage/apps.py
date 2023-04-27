@@ -13,3 +13,9 @@ class SignageConfig(AppConfig):
             'schedule_type': Schedule.MINUTES,
             'minutes': 1,
         }) 
+
+        Schedule.objects.update_or_create(name='checkupdates', defaults={
+            'func': 'signage.tasks.check_for_updates',
+            'schedule_type': Schedule.MINUTES,
+            'minutes': 1,
+        }) 

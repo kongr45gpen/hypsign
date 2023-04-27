@@ -36,12 +36,14 @@ class Display(models.Model):
     def get_current_page(self):
         schedule_item = self.get_current_schedule_item()
         if schedule_item:
-            page = schedule_item.get_current_sequence_item().page
-            cache.set(f'display_{self.code}', serializers.serialize('json', [page]), 7200)
-            return page
-        else:
-            cache.delete(f'display_{self.code}')
-            return None
+            sequence_item = schedule_item.get_current_sequence_item()
+            if sequence_item:
+                page = sequence_item.page
+                cache.set(f'display_{self.code}', serializers.serialize('json', [page]), 7200)
+                return page
+            
+        cache.delete(f'display_{self.code}')
+        return None
         
     def did_page_change(self):
         old_page_json = cache.get(f'display_{self.code}')
@@ -49,8 +51,7 @@ class Display(models.Model):
         new_page = self.get_current_page()
 
         if old_page_json:
-            new_page_json = serializers.deserialize('json', new_page)
-            logging.debug("new page json = {}".format(new_page_json))
+            new_page_json = serializers.serialize('json', [new_page])
             if old_page_json == new_page_json:
                 return False
 
@@ -119,6 +120,11 @@ class ScheduleEntry(models.Model):
         seconds_since_midnight = (time - time.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
         
         total_duration = self.sequence.aggregate(models.Sum('duration'))['duration__sum']
+
+        if not total_duration:
+            logger.error("Schedule entry {} has no sequence items".format(self))
+            return None
+
         seconds_counted = seconds_since_midnight % (total_duration * 60)
 
         current_duration = 0

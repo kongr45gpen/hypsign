@@ -37,6 +37,8 @@ class SignageConsumer(AsyncAPIConsumer):
             if self.channel_name in connected_displays:
                 del connected_displays[self.channel_name]
                 await SyncToAsync(display_connect_signal.send)(sender=self.__class__, data={'code': self.code})
+        await self.channel_layer.group_discard(f'keepalive', self.channel_name)
+        await self.channel_layer.group_discard(f'signage_display__{self.code}', self.channel_name)
 
     async def _add_to_connected_displays(self, data):
         async with lock:
@@ -72,6 +74,7 @@ class SignageConsumer(AsyncAPIConsumer):
 
         await self.display_updated_handler.subscribe(code=code, **kwargs)
         await self.channel_layer.group_add(f'keepalive', self.channel_name)
+        await self.channel_layer.group_add(f'signage_display__{code}', self.channel_name)
         asyncio.create_task(self._add_to_connected_displays({'code': code, 'display': kwargs['display']}))
 
         logger.debug("Received hello from display: [{}] {}".format(self.device_id, display.code))
@@ -127,3 +130,6 @@ class SignageConsumer(AsyncAPIConsumer):
     async def keepalive(self, event):
         await self.reply(action='keepalive', data=None, status=status.HTTP_204_NO_CONTENT)
 
+    async def display_updated(self, event):
+        logger.debug("Display updated: {}".format(event))
+        await self.reply(action='display_updated', data=None, status=status.HTTP_204_NO_CONTENT)

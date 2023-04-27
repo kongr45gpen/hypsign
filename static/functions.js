@@ -99,7 +99,11 @@ function updateKeepalive() {
 function checkKeepalive() {
     //console.debug("Last keepalive received " + (new Date() - lastKeepalive)/1000 + " s ago");
     if (new Date() - lastKeepalive > 1000 * 60 * 2) {
-        console.error("No keepalive received in 2 minutes, checking if internet connection exists");
+        console.log("No keepalive received in " + (new Date() - lastKeepalive)/1000/60 + " min");
+    }
+
+    if (new Date() - lastKeepalive > 1000 * 60 * 5) {
+        console.error("No keepalive received in 5 minutes, checking if internet connection exists");
 
         // Check if we have a connection
         fetch('/').then((response) => {
