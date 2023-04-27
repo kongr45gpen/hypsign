@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 INSTALLED_APPS = [
     'signage.apps.SignageConfig',
     'daphne',
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,6 +70,26 @@ TEMPLATES = [
         },
     },
 ]
+
+JAZZMIN_SETTINGS = {
+    "site_title": "Signage Admin",
+    "site_icon": "favicon.svg",
+    "show_ui_builder": True,
+    "changeform_format": "vertical_tabs",
+    "icons": {
+        "signage.display": "fas fa-desktop",
+        "signage.page": "far fa-file",
+        "signage.scheduleEntry": "far fa-calendar-alt",
+    },
+}
+
+JAZZMIN_UI_TWEAKS = {
+    "navbar": "navbar-dark",
+    "sidebar": "sidebar-dark-primary",
+    "sidebar_nav_small_text": True,
+    "sidebar_nav_flat_style": True,
+    "theme": "darkly",
+}
 
 WSGI_APPLICATION = 'hypsign.wsgi.application'
 ASGI_APPLICATION = "hypsign.asgi.application"
