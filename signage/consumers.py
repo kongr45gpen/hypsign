@@ -1,3 +1,4 @@
+import re
 import datetime
 import logging
 import asyncio
@@ -15,8 +16,9 @@ from asgiref.sync import SyncToAsync
 from signage.models import Display
 from rest_framework.exceptions import NotFound
 from signage.serializers import PageSerializer
-from .signals import display_update_signal, display_connect_signal
+from .signals import display_update_signal, display_diagnosis, take_screenshot_signal
 from channels.layers import get_channel_layer
+from django.core.cache import cache
 
 from channels import layers
 from rest_framework import status
@@ -36,7 +38,7 @@ class SignageConsumer(AsyncAPIConsumer):
         async with lock:
             if self.channel_name in connected_displays:
                 del connected_displays[self.channel_name]
-                await SyncToAsync(display_connect_signal.send)(sender=self.__class__, data={'code': self.code})
+                await SyncToAsync(display_diagnosis.send)(sender=self.__class__, data={'code': self.code}, type='disconnected')
         await self.channel_layer.group_discard(f'keepalive', self.channel_name)
         await self.channel_layer.group_discard(f'signage_display__{self.code}', self.channel_name)
 
@@ -48,7 +50,7 @@ class SignageConsumer(AsyncAPIConsumer):
                 'connected_at': datetime.datetime.now().isoformat(),
                 'device_id': self.device_id
             }
-        await SyncToAsync(display_connect_signal.send)(sender=self.__class__, data=data)
+        await SyncToAsync(display_diagnosis.send)(sender=self.__class__, data=data, type='connected')
 
     def _create_random_device_id(self):
         return ''.join(random.choices(string.ascii_lowercase + string.digits, k=7))
@@ -70,15 +72,36 @@ class SignageConsumer(AsyncAPIConsumer):
         # Untrustworthy and can be easily spoofed, but is only used for diagnostics and doesn't affect anything
         if device_id is None:
             device_id = self._create_random_device_id()
+        else:
+            device_id = re.match(r'[a-zA-Z0-9_-]{1,7}', device_id)
+            if device_id is None:
+                device_id = self._create_random_device_id()
+            else:
+                device_id = device_id.group(0)
         self.device_id = device_id
 
         await self.display_updated_handler.subscribe(code=code, **kwargs)
+        await self.take_screenshot_handler.subscribe(code=code, **kwargs)
         await self.channel_layer.group_add(f'keepalive', self.channel_name)
         await self.channel_layer.group_add(f'signage_display__{code}', self.channel_name)
         asyncio.create_task(self._add_to_connected_displays({'code': code, 'display': kwargs['display']}))
 
         logger.debug("Received hello from display: [{}] {}".format(self.device_id, display.code))
         return {'device_id': self.device_id}, status.HTTP_200_OK
+    
+    @action()
+    async def request_screenshots(self, data = {}, **kwargs):
+        logger.debug("Requested screenshot")
+        await SyncToAsync(take_screenshot_signal.send)(sender=self.__class__)
+    
+
+    @action()
+    async def screenshot(self, data, **kwargs):
+        logger.debug("Received screenshot from device: [{}] {}".format(self.device_id, self.code))
+        # Truncate data to 1 MB max
+        data = data[:1024*1024]
+        # cache.set(f'screenshot_{self.code}', data, timeout=60*10)
+        await SyncToAsync(display_diagnosis.send)(sender=self.__class__, data={'device': self.device_id, 'code': self.code, 'data': data}, type='screenshot')
     
     @action()
     def get_current_page(self, code, **kwargs):
@@ -89,9 +112,10 @@ class SignageConsumer(AsyncAPIConsumer):
             raise NotFound("Display not found")
         
         page = display.get_current_page()
-        logger.debug("Displaying page [{}] {} to display {}".format(page.id, page.description, code))
         if not page:
-            return None, 404 
+            return None, 404
+        else:
+            logger.debug("Displaying page [{}] {} to display {}".format(page.id, page.description, code))
                         
         return PageSerializer(page).data, 200
     
@@ -122,13 +146,26 @@ class SignageConsumer(AsyncAPIConsumer):
         await self.display_connected_handler.subscribe(**kwargs)
         return {}, status.HTTP_204_NO_CONTENT 
 
-    @observer(signal=display_connect_signal)
-    async def display_connected_handler(self, data, observer=None, action=None, subscribing_request_ids=[], **kwargs):
+    @observer(signal=display_diagnosis)
+    async def display_connected_handler(self, data={}, type=None, subscribing_request_ids=[], **kwargs):
+        type = data['type']
         for request_id in subscribing_request_ids:
-            await self.handle_action(action='get_connected_displays', request_id=request_id)
+            if type == 'connected' or type == 'disconnected':
+                await self.handle_action(action='get_connected_displays', request_id=request_id)
+            elif type == 'screenshot':
+                await self.reply(action='screenshot_received', data=data, status=status.HTTP_200_OK, request_id=request_id)
+
+    @display_connected_handler.serializer
+    def display_connected_handler(self, signal, sender, type=None, data={}, **kwargs):
+        return { 'type': type, 'data': data }
 
     async def keepalive(self, event):
         await self.reply(action='keepalive', data=None, status=status.HTTP_204_NO_CONTENT)
+
+    @observer(signal=take_screenshot_signal)
+    async def take_screenshot_handler(self, code, observer=None, action=None, subscribing_request_ids=[], **kwargs):
+        for request_id in subscribing_request_ids:
+            await self.reply(action='take_screenshot', data=None, status=status.HTTP_204_NO_CONTENT, request_id=request_id)
 
     async def display_updated(self, event):
         logger.debug("Display updated: {}".format(event))

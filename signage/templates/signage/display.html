@@ -83,7 +83,7 @@
     </div>
 
     <main id="container" class="container">
-        <div class="placeholder-container">
+        <div class="placeholder-container" id="main-display">
             <div class="placeholder" title="Loading...">
                 {{ display.code }}
             </div>
@@ -98,6 +98,7 @@
     <script src="{% static 'libs/notyf.min.js' %}"></script>
     <script src="{% static 'functions.js' %}"></script>
     <script src="{% static 'display.js' %}"></script>
+    <script src="{% static 'libs/dom-to-image.min.js' %}"></script>
 </body>
 
 </html>

@@ -35,6 +35,10 @@ const webSocket = createSocket(function (webSocket) {
                 break;
             case "keepalive":
                 updateKeepalive();
+                break;
+            case "take_screenshot":
+                sendScreenshot();
+                break;
         }
     };
 

@@ -20,10 +20,17 @@
         td:nth-child(4) {
             font-size: 8pt;
         }
+        .screenshot {
+            max-height: 80px;
+            max-width: 120px;
+        }
     </style>
 </head>
 
 <body>
+    <form style="float: right" onsubmit="askForScreenshots(); return false;">
+        <button type="submit">Capture Screenshots</button>
+    </form>
     <h1>Display Diagnostics</h1>
     <h2>Connected Displays</h2>
 
@@ -35,6 +42,7 @@
                 <th>Resolution</th>
                 <th>User Agent</th>
                 <th>IP Address</th>
+                <th>Screenshot</th>
             </tr>
         </thead>
         <tbody id="js--table-body"></tbody>
@@ -63,6 +71,10 @@
             switch (data.action) {
                 case "get_connected_displays":
                     updateTable(data.data);
+                    break;
+                case "screenshot_received":
+                    const $img = document.getElementById(`screenshot-${data.data.data.device}-${data.data.data.code}`);
+                    $img.src = data.data.data.data;
                     break;
             }
         };
@@ -94,8 +106,21 @@
                 cell.innerText = content;
                 row.appendChild(cell);
             });
+
+            const img = document.createElement('img');
+            img.classList.add('screenshot');
+            img.id = `screenshot-${display.device_id}-${display.code}`;
+            row.appendChild(img);
+
             tableBody.appendChild(row);
         });
+    }
+
+    function askForScreenshots() {
+        webSocket().send(JSON.stringify({
+            'action': 'request_screenshots',
+            'request_id': 0,
+        }));
     }
 </script>
 

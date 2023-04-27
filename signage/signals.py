@@ -7,4 +7,7 @@ import logging
 display_update_signal = Signal()
 
 # Signal sent whenever a display is connected or disconnected
-display_connect_signal = Signal()
+display_diagnosis = Signal()
+
+# Signal sent to take a screenshot of a screen
+take_screenshot_signal = Signal()

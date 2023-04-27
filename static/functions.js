@@ -38,6 +38,7 @@ function displayPage(page) {
     if (page === undefined || page === null) {
         // Add placeholder-container and placeholder with display code
         var placeholder = document.createElement("div");
+        placeholder.id = "main-display";
         placeholder.classList.add("placeholder");
         placeholder.setAttribute("title", "No page set up for display");
         placeholder.innerText = window.Config.code;
@@ -56,6 +57,7 @@ function displayPage(page) {
         var start = new Date();
 
         var iframe = document.createElement("iframe");
+        iframe.id = 'main-display';
         iframe._display = function() {
             console.log("iframe loading completed in " + (new Date() - start) + "ms");
             iframe._display = function() {};
@@ -87,6 +89,38 @@ function getDisplayInformation() {
         "screen_height": window.screen.height,
         "dpr": window.devicePixelRatio,
         "user_agent": window.navigator.userAgent,
+    }
+}
+
+function sendScreenshot() {
+    try {
+        var element;
+
+        if (document.getElementById('main-display').contentWindow) {
+            try {
+                element = document.getElementById('main-display').contentWindow.body;
+            } catch (e) {
+                console.warn("Could not get iframe body", e);
+                element = document.body;
+            }
+        } else {
+            element = document.body;
+        }
+
+        domtoimage.toJpeg(element, { quality: 0.7 })
+            .then(function (dataUrl) {
+                console.log("Sending screenshot of size " + dataUrl.length)
+                webSocket().send(JSON.stringify({
+                    "action": "screenshot",
+                    "data": dataUrl,
+                    "request_id": 0,
+                }));
+            })
+            .catch(function (error) {
+                console.warn("Error while sending screenshot", e);
+            })
+    } catch (e) {
+        console.warn("Error while taking screenshot", e);
     }
 }
 
