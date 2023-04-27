@@ -47,7 +47,6 @@ class Display(models.Model):
         
     def did_page_change(self):
         old_page_json = cache.get(f'display_{self.code}')
-        logging.debug("old page json = {}".format(old_page_json))
         new_page = self.get_current_page()
 
         if old_page_json:
@@ -75,7 +74,7 @@ class Page(models.Model):
                 logging.info("Display {} page changed".format(display.code))
                 display_update_signal.send(sender=Page, data=display.code)
             else:
-                logging.debug("Display {} unaffected by page change".format(display.code))
+                pass
 
 
     def __str__(self):
