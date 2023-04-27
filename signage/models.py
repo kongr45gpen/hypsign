@@ -40,12 +40,28 @@ class Page(models.Model):
 
 class ScheduleEntry(models.Model):
     displays = models.ManyToManyField(Display, blank=True)
-    page = models.ForeignKey(Page, on_delete=models.CASCADE)
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    start_time = models.TimeField(blank=True, null=True)
+    end_time = models.TimeField(blank=True, null=True)
+
+    priority = models.IntegerField(default=0)
 
     def __str__(self):
-        return f"{self.displays} - {self.page} - {self.start_time} - {self.end_time}"
+        return f"{[str(s) for s in self.sequence.all()]} - {[str(d) for d in self.displays.all()]}"
+
+class ScheduleSequenceItem(models.Model):
+    schedule_entry = models.ForeignKey(ScheduleEntry, on_delete=models.CASCADE, related_name='sequence')
+    page = models.ForeignKey(Page, on_delete=models.CASCADE)
+    duration = models.FloatField(default=1, blank=False, null=False, help_text="Duration in minutes")
+
+    order = models.PositiveIntegerField(default=0, blank=False, null=False)
+    class Meta:
+        ordering = ['order']
+
+    def __str__(self):
+        return f"{self.page} [{self.duration} min]"
 
 
 @receiver(post_save, sender=ScheduleEntry)
