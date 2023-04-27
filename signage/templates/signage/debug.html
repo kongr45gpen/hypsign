@@ -15,7 +15,7 @@
     <h1>Display Diagnostics</h1>
     <h1><code>{{ display.code }}</code></h1>
 
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5%; align-items: start;">
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 5%; align-items: start;">
     <table>
         <thead>
             <tr>
@@ -36,8 +36,8 @@
                 <td>{{display.description}}</td>
             </tr>
             <tr>
-                <td>Display Signature</td>
-                <td></td>
+                <td>Device ID</td>
+                <td><code id="js--device-id"></code></td>
             </tr>
         </tbody>
     </table>
@@ -50,12 +50,38 @@
         </thead>
         <tbody>
             <tr>
-                <td>Schedule Entry ID</td>
+                <td>ID</td>
                 <td><code>{{schedule.id}}</code></td>
             </tr>
             <tr>
-                <td>Schedule Entry Page</td>
-                <td><code>{{schedule.page}}</code></td>
+                <td>Date</td>
+                <td>{{schedule.start_date}} &ndash; {{schedule.end_date}}</td>
+            </tr>
+            <tr>
+                <td>Time</td>
+                <td>{{schedule.start_time}} &ndash; {{schedule.end_time}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <thead>
+            <tr>
+                <th colspan="2">Page Information</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Page ID</td>
+                <td><code>{{page.id}}</code></td>
+            </tr>
+            <tr>
+                <td>Description</td>
+                <td><code>{{page.description}}</code></td>
+            </tr>
+            <tr>
+                <td>Page Path</td>
+                <td style="max-width: 50px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap"><a href="{{ page.path }}">{{ page.path }}</a></td>
             </tr>
         </tbody>
     </table>
@@ -64,6 +90,12 @@
     <h2>Live Display</h2>
 
     <iframe src={% url 'display_view' display.code %} width="100%" height="460px"></iframe>
+
+    <script>
+        window.onload= function() {
+            document.getElementById('js--device-id').innerText = localStorage.getItem('device_id');
+        };
+    </script>
 </body>
 
 </html>
