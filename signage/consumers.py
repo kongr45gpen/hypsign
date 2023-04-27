@@ -162,6 +162,15 @@ class SignageConsumer(AsyncAPIConsumer):
     async def keepalive(self, event):
         await self.reply(action='keepalive', data=None, status=status.HTTP_204_NO_CONTENT)
 
+    #TODO: Request authentication!
+    @action()
+    async def request_refresh(self, **kwargs):
+        await self.channel_layer.group_send('keepalive', {'type': 'do_send_refresh'})
+
+    async def do_send_refresh(self, event):
+        await self.reply(action='refresh', data=None, status=status.HTTP_204_NO_CONTENT)
+
+    #TODO: Request authentication!
     @observer(signal=take_screenshot_signal)
     async def take_screenshot_handler(self, code, observer=None, action=None, subscribing_request_ids=[], **kwargs):
         for request_id in subscribing_request_ids:

@@ -28,8 +28,9 @@
 </head>
 
 <body>
-    <form style="float: right" onsubmit="askForScreenshots(); return false;">
-        <button type="submit">Capture Screenshots</button>
+    <form style="float: right">
+        <button type="submit" onclick="refresh(); return false;">Reload All</button>
+        <button type="submit" onclick="askForScreenshots(); return false;">Capture Screenshots</button>
     </form>
     <h1>Display Diagnostics</h1>
     <h2>Connected Displays</h2>
@@ -114,6 +115,13 @@
 
             tableBody.appendChild(row);
         });
+    }
+
+    function refresh() {
+        webSocket().send(JSON.stringify({
+            'action': 'request_refresh',
+            'request_id': 0,
+        }));
     }
 
     function askForScreenshots() {
