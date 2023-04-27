@@ -32,6 +32,43 @@ function createSocket(onopen) {
     return function() { return webSocket };
 }
 
+function lazyLoadElement($element, $loadingElement) {
+    var $container = document.getElementById("container");
+    var $loadingIndicator = document.getElementById("js--loading-indicator");
+    var old_children = $container.children;
+    var start = new Date();
+
+    if ($loadingElement === undefined) {
+        $loadingElement = $element;
+    }
+
+    $loadingIndicator.classList.remove("hidden");
+
+    var perform_display = function() {
+        console.log("content loading completed in " + (new Date() - start) + "ms");
+
+        // Next perform display will do nothing
+        perform_display = function() {};
+        
+        $element.classList.remove("iframe-loading");
+        for (var child of old_children) {
+            $container.removeChild(child);
+        }
+
+        $loadingIndicator.classList.add("hidden");
+    }
+
+    $loadingElement.onload = perform_display;
+    $element.id = 'main-display';
+    $element.classList.add("iframe-loading");
+
+    $container.appendChild($element);
+
+    setTimeout(function() {
+        perform_display();
+    }, 5000);
+}
+
 function displayPage(page) {
     const $loadingIndicator = document.getElementById("js--loading-indicator");
 
@@ -50,73 +87,28 @@ function displayPage(page) {
         document.getElementById("container").replaceChildren(placeholderContainer);
 
         $loadingIndicator.classList.add("hidden");
-        // if page mime type starts with image
     } else if (page['mime_type'].startsWith("image")) {
-        $loadingIndicator.classList.remove("hidden");
-        var old_children = document.getElementById("container").children;
-
-        var start = new Date();
-
         var $container = document.createElement("div");
         $container.classList.add("image-container");
 
-        var iframe = document.createElement("img");
-        iframe.id = 'main-display';
+        var $image = document.createElement("img");
+        $image.id = 'main-display';
 
         if (page['cover']) {
-            iframe.classList.add("image-fullwidth");
+            $image.classList.add("image-fullwidth");
         } else {
-            iframe.classList.add("image-contain");
+            $image.classList.add("image-contain");
         }
+        $image.setAttribute("src", page['path']);
+        $container.appendChild($image);
 
-        iframe._display = function() {
-            console.log("image loading completed in " + (new Date() - start) + "ms");
-            iframe._display = function() {};
-            for (var child of old_children) {
-                document.getElementById("container").removeChild(child);
-            }
-            $container.classList.remove("iframe-loading");
-            $loadingIndicator.classList.add("hidden");
-        }
-
-        iframe.onload = iframe._display;
-        iframe.setAttribute("src", page['path']);
-        $container.classList.add("iframe-loading");
-        $container.appendChild(iframe);
-        document.getElementById("container").appendChild($container);
-
-        // If not loaded after a few seconds, force display
-        setTimeout(function() {
-            iframe._display();
-        }, 5000);
+        lazyLoadElement($container, $image);
     } else {
-        $loadingIndicator.classList.remove("hidden");
-        var old_children = document.getElementById("container").children;
-
-        var start = new Date();
-
-        var iframe = document.createElement("iframe");
-        iframe.id = 'main-display';
-        iframe._display = function() {
-            console.log("iframe loading completed in " + (new Date() - start) + "ms");
-            iframe._display = function() {};
-            for (var child of old_children) {
-                document.getElementById("container").removeChild(child);
-            }
-            iframe.classList.remove("iframe-loading");
-            $loadingIndicator.classList.add("hidden");
-        }
-
-        iframe.onload = iframe._display;
-        iframe.setAttribute("src", page['path']);
-        iframe.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
-        iframe.classList.add("iframe-loading");
-        document.getElementById("container").appendChild(iframe);
-
-        // If not loaded after a few seconds, force display
-        setTimeout(function() {
-            iframe._display();
-        }, 5000);
+        var $iframe = document.createElement("iframe");
+        $iframe.setAttribute("src", page['path']);
+        $iframe.setAttribute("allow", "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share");
+        
+        lazyLoadElement($iframe);
     }
 }
 
