@@ -1,5 +1,8 @@
 # hypsign
 
+**The web-based digital signage solution that doesn't care about your signage.**
+
+
 ## Installation
 First, set up a `venv` for your project.
 ```bash
@@ -31,4 +34,9 @@ python manage.py createsuperuser
 and now run the development server:
 ```bash
 python manage.py runserver
+```
+
+You also need to run the background task runner:
+```bash
+python manage.py qcluster
 ```

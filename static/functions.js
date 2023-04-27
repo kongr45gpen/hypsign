@@ -114,8 +114,8 @@ function displayPage(page) {
 
 function getDisplayInformation() {
     return {
-        "width": window.screen.availHeight,
-        "height": window.screen.availWidth,
+        "width": window.screen.availWidth,
+        "height": window.screen.availHeight,
         "screen_width": window.screen.width,
         "screen_height": window.screen.height,
         "dpr": window.devicePixelRatio,
