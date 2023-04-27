@@ -64,6 +64,8 @@ class Page(models.Model):
     path = models.CharField(max_length=512)
     mime_type = models.CharField(max_length=255, default="text/html")
 
+    cover = models.BooleanField(default=False, help_text="Whether images should be cropped and upscaled to cover the entire page, instead of being fully contained inside the page")
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 

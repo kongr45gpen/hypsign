@@ -50,6 +50,45 @@ function displayPage(page) {
         document.getElementById("container").replaceChildren(placeholderContainer);
 
         $loadingIndicator.classList.add("hidden");
+        // if page mime type starts with image
+    } else if (page['mime_type'].startsWith("image")) {
+        $loadingIndicator.classList.remove("hidden");
+        var old_children = document.getElementById("container").children;
+
+        var start = new Date();
+
+        var $container = document.createElement("div");
+        $container.classList.add("image-container");
+
+        var iframe = document.createElement("img");
+        iframe.id = 'main-display';
+
+        if (page['cover']) {
+            iframe.classList.add("image-fullwidth");
+        } else {
+            iframe.classList.add("image-contain");
+        }
+
+        iframe._display = function() {
+            console.log("image loading completed in " + (new Date() - start) + "ms");
+            iframe._display = function() {};
+            for (var child of old_children) {
+                document.getElementById("container").removeChild(child);
+            }
+            $container.classList.remove("iframe-loading");
+            $loadingIndicator.classList.add("hidden");
+        }
+
+        iframe.onload = iframe._display;
+        iframe.setAttribute("src", page['path']);
+        $container.classList.add("iframe-loading");
+        $container.appendChild(iframe);
+        document.getElementById("container").appendChild($container);
+
+        // If not loaded after a few seconds, force display
+        setTimeout(function() {
+            iframe._display();
+        }, 5000);
     } else {
         $loadingIndicator.classList.remove("hidden");
         var old_children = document.getElementById("container").children;
