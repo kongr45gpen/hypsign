@@ -116,7 +116,7 @@ function sendScreenshot() {
                     "request_id": 0,
                 }));
             })
-            .catch(function (error) {
+            .catch(function (e) {
                 console.warn("Error while sending screenshot", e);
             })
     } catch (e) {
