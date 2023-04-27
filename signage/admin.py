@@ -11,7 +11,7 @@ admin.site.register(Page)
 
 @admin.register(Display)
 class DisplayAdmin(admin.ModelAdmin):
-    list_display = ('code', 'description')
+    list_display = ('description', 'code')
     
 class ScheduleSequenceInline(admin.TabularInline):
     model = ScheduleSequenceItem

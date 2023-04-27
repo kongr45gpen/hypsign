@@ -85,12 +85,11 @@ class SignageConsumer(AsyncAPIConsumer):
             logger.warning("Display not found: {}".format(code))
             raise NotFound("Display not found")
         
-        schedule_item = display.get_current_schedule_item()
-        if not schedule_item:
+        page = display.get_current_page()
+        logger.debug("Displaying page [{}] {} to display {}".format(page.id, page.description, code))
+        if not page:
             return None, 404 
-        
-        page = schedule_item.page
-                
+                        
         return PageSerializer(page).data, 200
     
     @action()

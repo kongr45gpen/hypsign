@@ -6,8 +6,6 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    replaces = [('signage', '0001_initial'), ('signage', '0002_alter_display_code_scheduleentry'), ('signage', '0003_remove_scheduleentry_display_scheduleentry_displays'), ('signage', '0004_scheduleentry_end_date_scheduleentry_priority_and_more'), ('signage', '0005_schedulesequenceitem'), ('signage', '0006_remove_scheduleentry_page')]
-
     initial = True
 
     dependencies = [

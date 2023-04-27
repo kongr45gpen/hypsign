@@ -8,5 +8,8 @@ def send_keepalive():
     channel_layer = get_channel_layer()
     async_to_sync(channel_layer.group_send)('keepalive', {'type': 'keepalive'})
 
+# def check_for_updates():
+
+
 if __name__ == "__main__":
     send_keepalive()
