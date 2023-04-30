@@ -25,6 +25,15 @@ from rest_framework import status
 
 logger = logging.getLogger("websockets")
 
+try:
+    loop = asyncio.get_event_loop()
+except RuntimeError as e:
+    if str(e).startswith('There is no current event loop in thread'):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    else:
+        raise
+
 lock = asyncio.Lock()
 connected_displays = {}
 
@@ -88,12 +97,12 @@ class SignageConsumer(AsyncAPIConsumer):
 
         logger.debug("Received hello from display: [{}] {}".format(self.device_id, display.code))
         return {'device_id': self.device_id}, status.HTTP_200_OK
-    
+
     @action()
     async def request_screenshots(self, data = {}, **kwargs):
         logger.debug("Requested screenshot")
         await SyncToAsync(take_screenshot_signal.send)(sender=self.__class__)
-    
+
 
     @action()
     async def screenshot(self, data, **kwargs):
@@ -102,7 +111,7 @@ class SignageConsumer(AsyncAPIConsumer):
         data = data[:1024*1024]
         # cache.set(f'screenshot_{self.code}', data, timeout=60*10)
         await SyncToAsync(display_diagnosis.send)(sender=self.__class__, data={'device': self.device_id, 'code': self.code, 'data': data}, type='screenshot')
-    
+
     @action()
     def get_current_page(self, code, **kwargs):
         try:
@@ -110,21 +119,21 @@ class SignageConsumer(AsyncAPIConsumer):
         except Exception as e:
             logger.warning("Display not found: {}".format(code))
             raise NotFound("Display not found")
-        
+
         page = display.get_current_page()
         if not page:
             return None, 404
         else:
             logger.debug("Displaying page [{}] {} to display {}".format(page.id, page.description, code))
-                        
+
         return PageSerializer(page).data, 200
-    
+
     @action()
     async def get_connected_displays(self, **kwargs):
         async with lock:
             logger.debug("Found {} subscribed displays".format(len(connected_displays)))
             return list(connected_displays.values()), 200
-    
+
     @observer(signal=display_update_signal)
     async def display_updated_handler(self, data, observer=None, action=None, subscribing_request_ids=[], **kwargs):
         for request_id in subscribing_request_ids:
@@ -144,7 +153,7 @@ class SignageConsumer(AsyncAPIConsumer):
     @action()
     async def subscribe_to_display_connections(self, **kwargs):
         await self.display_connected_handler.subscribe(**kwargs)
-        return {}, status.HTTP_204_NO_CONTENT 
+        return {}, status.HTTP_204_NO_CONTENT
 
     @observer(signal=display_diagnosis)
     async def display_connected_handler(self, data={}, type=None, subscribing_request_ids=[], **kwargs):
