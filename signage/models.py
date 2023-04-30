@@ -170,6 +170,16 @@ class ScheduleSequenceItem(models.Model):
 
     def __str__(self):
         return f"{self.page} [{self.duration} min]"
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        
+        for display in self.schedule_entry.displays.all():
+            if display.did_page_change():
+                logging.info("Display {} page changed".format(display.code))
+                display_update_signal.send(sender=Page, data=display.code)
+            else:
+                pass
 
 
 @receiver(post_save, sender=ScheduleEntry)
