@@ -5,7 +5,7 @@ from .models import Display, Page, ScheduleEntry, ScheduleSequenceItem
 from adminsortable2.admin import SortableTabularInline, SortableAdminBase
 
 from django.db import models
-from django.forms import NumberInput
+from django.forms import NumberInput, Textarea
 
 admin.site.register(Page)
 
@@ -20,6 +20,7 @@ class ScheduleSequenceInline(admin.TabularInline):
     formfield_overrides = {
         models.FloatField: {'widget': NumberInput(attrs={'size':8})},
         models.PositiveIntegerField: {'widget': NumberInput(attrs={'size':5})},
+        models.JSONField: {'widget': Textarea(attrs={'rows':2, 'cols':25, 'style': 'font-family:monospace'})},
     }
 
 @admin.register(ScheduleEntry)

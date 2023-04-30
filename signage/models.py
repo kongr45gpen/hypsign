@@ -1,6 +1,7 @@
-from django.db import models
 import logging
+import copy
 
+from django.db import models
 from django.core.cache import cache
 from django.db.models import Q
 from signage.signals import display_update_signal
@@ -8,6 +9,8 @@ from django.db.models.signals import post_save,m2m_changed
 from django.dispatch import receiver
 from django.core import serializers
 from datetime import datetime, timedelta
+import urllib.parse as urlparse
+from urllib.parse import urlencode
 
 logger = logging.getLogger('app')
 
@@ -38,7 +41,8 @@ class Display(models.Model):
         if schedule_item:
             sequence_item = schedule_item.get_current_sequence_item()
             if sequence_item:
-                page = sequence_item.page
+                page = copy.copy(sequence_item.page)
+                page.augment(sequence_item.params)
                 cache.set(f'display_{self.code}', serializers.serialize('json', [page]), 7200)
                 return page
             
@@ -65,6 +69,19 @@ class Page(models.Model):
     mime_type = models.CharField(max_length=255, default="text/html")
 
     cover = models.BooleanField(default=False, help_text="Whether images should be cropped and upscaled to cover the entire page, instead of being fully contained inside the page")
+
+    def augment(self, params):
+        try:
+            parsed = list(urlparse.urlparse(self.path))
+            query = dict(urlparse.parse_qsl(parsed[4]))
+
+            query.update(params)
+            parsed[4] = urlencode(query)
+
+            self.path = urlparse.urlunparse(parsed)
+        except Exception as e:
+            logger.warning("Could not augment page URL with parameters: {}".format(e))
+
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -145,6 +162,7 @@ class ScheduleSequenceItem(models.Model):
     schedule_entry = models.ForeignKey(ScheduleEntry, on_delete=models.CASCADE, related_name='sequence')
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     duration = models.FloatField(default=1, blank=False, null=False, help_text="Duration in minutes")
+    params = models.JSONField(default=dict)
 
     order = models.PositiveIntegerField(default=0, blank=False, null=False)
     class Meta:
