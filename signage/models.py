@@ -162,7 +162,7 @@ class ScheduleSequenceItem(models.Model):
     schedule_entry = models.ForeignKey(ScheduleEntry, on_delete=models.CASCADE, related_name='sequence')
     page = models.ForeignKey(Page, on_delete=models.CASCADE)
     duration = models.FloatField(default=1, blank=False, null=False, help_text="Duration in minutes")
-    params = models.JSONField(default=dict)
+    params = models.JSONField(default=dict, blank=True)
 
     order = models.PositiveIntegerField(default=0, blank=False, null=False)
     class Meta:

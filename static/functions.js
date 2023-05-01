@@ -1,6 +1,12 @@
 function createSocket(onopen) {
+    if (window.location.protocol === "https:") {
+        wssProtocol = "wss://";
+    } else {
+        wssProtocol = "ws://";
+    }
+
     let webSocket = new WebSocket(
-        'ws://' + window.location.host + '/ws/signage/'
+        wssProtocol + window.location.host + '/ws/signage/'
     );
 
     webSocket.onerror = function(e) {
