@@ -41,7 +41,7 @@ function createSocket(onopen) {
 function lazyLoadElement($element, $loadingElement) {
     var $container = document.getElementById("container");
     var $loadingIndicator = document.getElementById("js--loading-indicator");
-    var old_children = $container.children;
+    var old_children = [].slice.call($container.children);
     var start = new Date();
 
     if ($loadingElement === undefined) {
@@ -64,7 +64,7 @@ function lazyLoadElement($element, $loadingElement) {
         $loadingIndicator.classList.add("hidden");
     }
 
-    $loadingElement.onload = perform_display;
+    $loadingElement.onload = function() {perform_display(); };
     $element.id = 'main-display';
     $element.classList.add("iframe-loading");
 
